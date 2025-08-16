@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, SafeAreaView } from 'react-native';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useData } from '../contexts/DataContext';
 
 export default function SettingsScreen() {
   const backgroundColor = useThemeColor({}, 'background');
@@ -9,6 +10,8 @@ export default function SettingsScreen() {
   const subTextColor = useThemeColor({ light: '#666', dark: '#999' }, 'text');
   const cardBackground = useThemeColor({ light: '#F8F9FA', dark: '#1A1A1A' }, 'background');
   const borderColor = useThemeColor({ light: '#E0E0E0', dark: '#404040' }, 'text');
+
+  const { refreshData } = useData();
 
   const handleClearAllData = () => {
     Alert.alert(
@@ -24,6 +27,8 @@ export default function SettingsScreen() {
               const keys = await AsyncStorage.getAllKeys();
               const expenseKeys = keys.filter(key => key.startsWith('expenses_'));
               await AsyncStorage.multiRemove(expenseKeys);
+              // データを更新して画面に反映
+              await refreshData();
               Alert.alert('完了', 'すべてのデータを削除しました');
             } catch (error) {
               Alert.alert('エラー', 'データの削除に失敗しました');

@@ -19,72 +19,51 @@ import { TotalCard } from '../components/TotalCard';
 import { EditExpenseModal } from '../components/EditExpenseModal';
 import { CategorySummary } from '../components/CategorySummary';
 import { MonthlyStats } from '../components/MonthlyStats';
-import { Category, Expense, MonthlyData } from '../types/expense';
+import { Category, Expense } from '../types/expense';
 import {
   saveExpense,
-  getMonthlyData,
   deleteExpense,
   updateExpense,
   getTodayString,
   cleanupOldData,
 } from '../services/storage';
+import { useData } from '../contexts/DataContext';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function HomeScreen() {
   const [selectedCategory, setSelectedCategory] = useState<Category>(Category.Food);
   const [amount, setAmount] = useState<string>('');
   const [error, setError] = useState<string>('');
-  const [monthlyData, setMonthlyData] = useState<MonthlyData>({
-    records: [],
-    totals: {
-      month: 0,
-      today: 0,
-      byCategory: {
-        [Category.Food]: 0,
-        [Category.Transport]: 0,
-        [Category.Daily]: 0,
-        [Category.Entertainment]: 0,
-        [Category.Other]: 0,
-      },
-    },
-  });
-  const [todayExpenses, setTodayExpenses] = useState<Expense[]>([]);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [showStats, setShowStats] = useState(false);
 
+  const { monthlyData, todayExpenses, refreshData } = useData();
+
   const backgroundColor = useThemeColor({}, 'background');
   const textColor = useThemeColor({}, 'text');
   const subTextColor = useThemeColor({ light: '#666', dark: '#999' }, 'text');
 
-  // データの読み込み
-  const loadData = useCallback(async () => {
-    try {
-      const data = await getMonthlyData();
-      setMonthlyData(data);
-      
-      const today = getTodayString();
-      const todayRecords = data.records.filter((e) => e.date === today);
-      // 古い順（時刻昇順）にソート
-      todayRecords.sort((a, b) => a.timestamp - b.timestamp);
-      setTodayExpenses(todayRecords);
-    } catch (error) {
-      console.error('Error loading data:', error);
-    }
-  }, []);
-
   // 初回読み込みと古いデータのクリーンアップ
   useEffect(() => {
-    loadData();
+    refreshData();
     cleanupOldData();
-  }, [loadData]);
+  }, [refreshData]);
+
+  // 画面がフォーカスされた時にデータを更新
+  useFocusEffect(
+    useCallback(() => {
+      refreshData();
+    }, [refreshData])
+  );
 
   // プルダウン更新
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await loadData();
+    await refreshData();
     setRefreshing(false);
-  }, [loadData]);
+  }, [refreshData]);
 
   // 支出を保存
   const handleSaveExpense = async () => {
@@ -117,7 +96,7 @@ export default function HomeScreen() {
       setError('');
 
       // データを再読み込み
-      await loadData();
+      await refreshData();
     } catch (error) {
       console.error('Error saving expense:', error);
       Alert.alert('エラー', '保存に失敗しました');
@@ -137,7 +116,7 @@ export default function HomeScreen() {
           onPress: async () => {
             try {
               await deleteExpense(id);
-              await loadData();
+              await refreshData();
             } catch (error) {
               console.error('Error deleting expense:', error);
               Alert.alert('エラー', '削除に失敗しました');
@@ -160,7 +139,7 @@ export default function HomeScreen() {
       await updateExpense(id, { category, amount });
       setShowEditModal(false);
       setEditingExpense(null);
-      await loadData();
+      await refreshData();
     } catch (error) {
       console.error('Error updating expense:', error);
       Alert.alert('エラー', '更新に失敗しました');
