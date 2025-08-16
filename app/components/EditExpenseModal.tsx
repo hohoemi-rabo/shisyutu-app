@@ -6,11 +6,13 @@ import {
   StyleSheet,
   TouchableOpacity,
   SafeAreaView,
+  Platform,
 } from 'react-native';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { Category, Expense } from '../types/expense';
 import { CategoryDropdown } from './CategoryDropdown';
 import { AmountInput } from './AmountInput';
+import { validateAmount } from '../utils/validation';
 
 interface EditExpenseModalProps {
   visible: boolean;
@@ -41,20 +43,30 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
     }
   }, [expense]);
 
-  const handleSave = () => {
-    if (!amount) {
-      setError('金額を入力してください');
+  const handleSave = async () => {
+    // バリデーション
+    const validation = validateAmount(amount);
+    if (!validation.isValid) {
+      setError(validation.error || '入力エラー');
+      
+      // エラー時の触覚フィードバック（iOS）
+      if (Platform.OS === 'ios') {
+        const { default: Haptics } = await import('expo-haptics');
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+      }
       return;
     }
 
     const numAmount = parseInt(amount, 10);
-    if (numAmount > 1000000) {
-      setError('100万円以下で入力してください');
-      return;
-    }
 
     if (expense) {
       onSave(expense.id, selectedCategory, numAmount);
+      
+      // 成功時の触覚フィードバック（iOS）
+      if (Platform.OS === 'ios') {
+        const { default: Haptics } = await import('expo-haptics');
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      }
     }
   };
 

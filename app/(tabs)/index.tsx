@@ -27,6 +27,7 @@ import {
   getTodayString,
   cleanupOldData,
 } from '../services/storage';
+import { validateAmount } from '../utils/validation';
 import { useData } from '../contexts/DataContext';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -68,21 +69,13 @@ export default function HomeScreen() {
   // 支出を保存
   const handleSaveExpense = async () => {
     // バリデーション
-    if (!amount) {
-      setError('金額を入力してください');
+    const validation = validateAmount(amount);
+    if (!validation.isValid) {
+      setError(validation.error || '入力エラー');
       return;
     }
 
     const numAmount = parseInt(amount, 10);
-    if (numAmount > 1000000) {
-      setError('100万円以下で入力してください');
-      return;
-    }
-
-    if (numAmount === 0) {
-      setError('0円より大きい金額を入力してください');
-      return;
-    }
 
     try {
       await saveExpense({
@@ -97,9 +90,21 @@ export default function HomeScreen() {
 
       // データを再読み込み
       await refreshData();
+      
+      // 成功時の触覚フィードバック（iOS）
+      if (Platform.OS === 'ios') {
+        const { default: Haptics } = await import('expo-haptics');
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
     } catch (error) {
       console.error('Error saving expense:', error);
-      Alert.alert('エラー', '保存に失敗しました');
+      setError('保存に失敗しました。もう一度お試しください。');
+      
+      // エラー時の触覚フィードバック（iOS）
+      if (Platform.OS === 'ios') {
+        const { default: Haptics } = await import('expo-haptics');
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      }
     }
   };
 
