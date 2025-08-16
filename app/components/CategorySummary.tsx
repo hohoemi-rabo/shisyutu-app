@@ -2,6 +2,9 @@ import React from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { Category, CategoryInfo, CategoryTotals } from '../types/expense';
+import { getCategoryColor } from '../utils/theme';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { Colors } from '@/constants/Colors';
 
 interface CategorySummaryProps {
   totals: CategoryTotals;
@@ -15,10 +18,20 @@ interface CategoryItem {
 }
 
 export const CategorySummary: React.FC<CategorySummaryProps> = ({ totals, monthTotal }) => {
-  const backgroundColor = useThemeColor({ light: '#F8F9FA', dark: '#1A1A1A' }, 'background');
+  const colorScheme = useColorScheme();
+  const backgroundColor = useThemeColor(
+    { light: Colors.light.card, dark: Colors.dark.card },
+    'background'
+  );
   const textColor = useThemeColor({}, 'text');
-  const subTextColor = useThemeColor({ light: '#666', dark: '#999' }, 'text');
-  const borderColor = useThemeColor({ light: '#E0E0E0', dark: '#404040' }, 'text');
+  const subTextColor = useThemeColor(
+    { light: Colors.light.subText, dark: Colors.dark.subText },
+    'text'
+  );
+  const borderColor = useThemeColor(
+    { light: Colors.light.border, dark: Colors.dark.border },
+    'text'
+  );
 
   // カテゴリ別データを作成してソート（金額の多い順）
   const categoryData: CategoryItem[] = Object.entries(totals)
@@ -32,11 +45,13 @@ export const CategorySummary: React.FC<CategorySummaryProps> = ({ totals, monthT
 
   const renderCategoryItem = ({ item }: { item: CategoryItem }) => {
     const info = CategoryInfo[item.category];
+    const categoryColor = getCategoryColor(item.category, colorScheme);
     const formattedAmount = item.amount.toLocaleString('ja-JP');
     
     return (
       <View style={[styles.categoryItem, { borderBottomColor: borderColor }]}>
         <View style={styles.categoryLeft}>
+          <View style={[styles.categoryColorBar, { backgroundColor: categoryColor }]} />
           <Text style={styles.categoryIcon}>{info.icon}</Text>
           <View>
             <Text style={[styles.categoryName, { color: textColor }]}>{info.label}</Text>
@@ -49,12 +64,12 @@ export const CategorySummary: React.FC<CategorySummaryProps> = ({ totals, monthT
           <Text style={[styles.categoryAmount, { color: textColor }]}>
             ¥{formattedAmount}
           </Text>
-          <View style={[styles.progressBar, { backgroundColor: borderColor }]}>
+          <View style={[styles.progressBar, { backgroundColor: `${borderColor}30` }]}>
             <View
               style={[
                 styles.progressFill,
                 {
-                  backgroundColor: info.color,
+                  backgroundColor: categoryColor,
                   width: `${Math.min(item.percentage, 100)}%`,
                 },
               ]}
@@ -113,6 +128,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+  },
+  categoryColorBar: {
+    width: 3,
+    height: 35,
+    borderRadius: 2,
+    marginRight: 10,
   },
   categoryIcon: {
     fontSize: 20,

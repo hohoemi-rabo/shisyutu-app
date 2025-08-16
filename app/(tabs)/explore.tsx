@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, SafeAreaVi
 import { useThemeColor } from '@/hooks/useThemeColor';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useData } from '../contexts/DataContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function SettingsScreen() {
   const backgroundColor = useThemeColor({}, 'background');
@@ -12,6 +13,7 @@ export default function SettingsScreen() {
   const borderColor = useThemeColor({ light: '#E0E0E0', dark: '#404040' }, 'text');
 
   const { refreshData } = useData();
+  const { themeMode, setThemeMode } = useTheme();
 
   const handleClearAllData = () => {
     Alert.alert(
@@ -30,7 +32,7 @@ export default function SettingsScreen() {
               // データを更新して画面に反映
               await refreshData();
               Alert.alert('完了', 'すべてのデータを削除しました');
-            } catch (error) {
+            } catch {
               Alert.alert('エラー', 'データの削除に失敗しました');
             }
           },
@@ -51,11 +53,55 @@ export default function SettingsScreen() {
     );
   };
 
+  const themeModeLabels = {
+    auto: 'システム設定に従う',
+    light: 'ライトモード',
+    dark: 'ダークモード',
+  };
+
+  const handleThemeChange = () => {
+    const options = [
+      { text: 'システム設定に従う', value: 'auto' as const },
+      { text: 'ライトモード', value: 'light' as const },
+      { text: 'ダークモード', value: 'dark' as const },
+    ];
+
+    Alert.alert(
+      'テーマを選択',
+      '表示モードを選択してください',
+      [
+        ...options.map(option => ({
+          text: option.text,
+          onPress: () => setThemeMode(option.value),
+        })),
+        { text: 'キャンセル', style: 'cancel' },
+      ]
+    );
+  };
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={[styles.headerTitle, { color: textColor }]}>設定</Text>
+        </View>
+
+        {/* 表示設定 */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: textColor }]}>表示設定</Text>
+          
+          <TouchableOpacity
+            style={[styles.settingItem, { backgroundColor: cardBackground }]}
+            onPress={handleThemeChange}
+          >
+            <View>
+              <Text style={[styles.settingLabel, { color: textColor }]}>テーマ</Text>
+              <Text style={[styles.settingDescription, { color: subTextColor }]}>
+                {themeModeLabels[themeMode]}
+              </Text>
+            </View>
+            <Text style={[styles.chevron, { color: subTextColor }]}>›</Text>
+          </TouchableOpacity>
         </View>
 
         {/* データ管理 */}
