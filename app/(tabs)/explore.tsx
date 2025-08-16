@@ -1,110 +1,194 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, SafeAreaView } from 'react-native';
+import { useThemeColor } from '@/hooks/useThemeColor';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+export default function SettingsScreen() {
+  const backgroundColor = useThemeColor({}, 'background');
+  const textColor = useThemeColor({}, 'text');
+  const subTextColor = useThemeColor({ light: '#666', dark: '#999' }, 'text');
+  const cardBackground = useThemeColor({ light: '#F8F9FA', dark: '#1A1A1A' }, 'background');
+  const borderColor = useThemeColor({ light: '#E0E0E0', dark: '#404040' }, 'text');
 
-export default function TabTwoScreen() {
+  const handleClearAllData = () => {
+    Alert.alert(
+      '全データ削除',
+      'すべての支出データが削除されます。この操作は取り消せません。',
+      [
+        { text: 'キャンセル', style: 'cancel' },
+        {
+          text: '削除する',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const keys = await AsyncStorage.getAllKeys();
+              const expenseKeys = keys.filter(key => key.startsWith('expenses_'));
+              await AsyncStorage.multiRemove(expenseKeys);
+              Alert.alert('完了', 'すべてのデータを削除しました');
+            } catch (error) {
+              Alert.alert('エラー', 'データの削除に失敗しました');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleExport = () => {
+    Alert.alert('エクスポート', 'この機能は次のバージョンで実装予定です');
+  };
+
+  const handleAbout = () => {
+    Alert.alert(
+      'アプリについて',
+      'シンプル支出管理 v1.0.0\n\nシンプルで使いやすい支出記録アプリです。',
+      [{ text: 'OK' }]
+    );
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <SafeAreaView style={[styles.container, { backgroundColor }]}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <Text style={[styles.headerTitle, { color: textColor }]}>設定</Text>
+        </View>
+
+        {/* データ管理 */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: textColor }]}>データ管理</Text>
+          
+          <TouchableOpacity
+            style={[styles.settingItem, { backgroundColor: cardBackground, borderBottomColor: borderColor }]}
+            onPress={handleExport}
+          >
+            <View>
+              <Text style={[styles.settingLabel, { color: textColor }]}>データをエクスポート</Text>
+              <Text style={[styles.settingDescription, { color: subTextColor }]}>
+                CSVファイルとして保存
+              </Text>
+            </View>
+            <Text style={[styles.chevron, { color: subTextColor }]}>›</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.settingItem, { backgroundColor: cardBackground }]}
+            onPress={handleClearAllData}
+          >
+            <View>
+              <Text style={[styles.settingLabel, { color: '#FF3B30' }]}>全データを削除</Text>
+              <Text style={[styles.settingDescription, { color: subTextColor }]}>
+                すべての支出記録を削除します
+              </Text>
+            </View>
+            <Text style={[styles.chevron, { color: subTextColor }]}>›</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* アプリ情報 */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: textColor }]}>アプリ情報</Text>
+          
+          <TouchableOpacity
+            style={[styles.settingItem, { backgroundColor: cardBackground }]}
+            onPress={handleAbout}
+          >
+            <View>
+              <Text style={[styles.settingLabel, { color: textColor }]}>このアプリについて</Text>
+              <Text style={[styles.settingDescription, { color: subTextColor }]}>
+                バージョン情報
+              </Text>
+            </View>
+            <Text style={[styles.chevron, { color: subTextColor }]}>›</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* 使い方 */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: textColor }]}>使い方</Text>
+          <View style={[styles.helpCard, { backgroundColor: cardBackground }]}>
+            <Text style={[styles.helpTitle, { color: textColor }]}>基本的な使い方</Text>
+            <Text style={[styles.helpText, { color: subTextColor }]}>
+              1. カテゴリを選択{'\n'}
+              2. 金額を入力{'\n'}
+              3. Enterキーまたは完了ボタンで保存{'\n'}
+              {'\n'}
+              • 支出は自動的に今日の日付で記録されます{'\n'}
+              • 編集・削除は各項目のボタンから実行できます{'\n'}
+              • 月が変わると前月のデータは自動削除されます
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.footer}>
+          <Text style={[styles.footerText, { color: subTextColor }]}>
+            Made with React Native & Expo
+          </Text>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
   },
-  titleContainer: {
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 10,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+  },
+  section: {
+    marginTop: 20,
+    paddingHorizontal: 20,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 10,
+    textTransform: 'uppercase',
+  },
+  settingItem: {
     flexDirection: 'row',
-    gap: 8,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    marginBottom: 1,
+    borderRadius: 8,
+  },
+  settingLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  settingDescription: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  chevron: {
+    fontSize: 24,
+  },
+  helpCard: {
+    padding: 16,
+    borderRadius: 8,
+  },
+  helpTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  helpText: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  footer: {
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  footerText: {
+    fontSize: 12,
   },
 });
