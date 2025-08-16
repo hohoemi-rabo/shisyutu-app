@@ -32,7 +32,7 @@ export default function TabLayout() {
           name="index"
           options={{
             title: '支出',
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+            tabBarIcon: ({ color }) => <IconSymbol size={28} name="creditcard.fill" color={color} />,
           }}
         />
         <Tabs.Screen
