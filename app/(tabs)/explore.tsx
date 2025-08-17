@@ -6,6 +6,7 @@ import { useData } from '../contexts/DataContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { forceCleanup, resetCleanupHistory } from '../utils/dataCleanup';
 import { NetworkStatusBadge } from '../components/NetworkStatusBadge';
+import { ThemeSelector } from '../components/ThemeSelector';
 
 export default function SettingsScreen() {
   const backgroundColor = useThemeColor({}, 'background');
@@ -15,7 +16,6 @@ export default function SettingsScreen() {
   const borderColor = useThemeColor({ light: '#E0E0E0', dark: '#404040' }, 'text');
 
   const { refreshData } = useData();
-  const { themeMode, setThemeMode } = useTheme();
   const [debugMode, setDebugMode] = useState(false);
 
   const handleClearAllData = () => {
@@ -105,31 +105,6 @@ export default function SettingsScreen() {
     );
   };
 
-  const themeModeLabels = {
-    auto: 'システム設定に従う',
-    light: 'ライトモード',
-    dark: 'ダークモード',
-  };
-
-  const handleThemeChange = () => {
-    const options = [
-      { text: 'システム設定に従う', value: 'auto' as const },
-      { text: 'ライトモード', value: 'light' as const },
-      { text: 'ダークモード', value: 'dark' as const },
-    ];
-
-    Alert.alert(
-      'テーマを選択',
-      '表示モードを選択してください',
-      [
-        ...options.map(option => ({
-          text: option.text,
-          onPress: () => setThemeMode(option.value),
-        })),
-        { text: 'キャンセル', style: 'cancel' },
-      ]
-    );
-  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
@@ -143,18 +118,12 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: textColor }]}>表示設定</Text>
           
-          <TouchableOpacity
-            style={[styles.settingItem, { backgroundColor: cardBackground }]}
-            onPress={handleThemeChange}
-          >
-            <View>
-              <Text style={[styles.settingLabel, { color: textColor }]}>テーマ</Text>
-              <Text style={[styles.settingDescription, { color: subTextColor }]}>
-                {themeModeLabels[themeMode]}
-              </Text>
-            </View>
-            <Text style={[styles.chevron, { color: subTextColor }]}>›</Text>
-          </TouchableOpacity>
+          <View style={[styles.settingItem, { backgroundColor: cardBackground }]}>
+            <Text style={[styles.settingLabel, { color: textColor, marginBottom: 12 }]}>
+              テーマ
+            </Text>
+            <ThemeSelector />
+          </View>
         </View>
 
         {/* データ管理 */}
@@ -165,26 +134,30 @@ export default function SettingsScreen() {
             style={[styles.settingItem, { backgroundColor: cardBackground, borderBottomColor: borderColor }]}
             onPress={handleExport}
           >
-            <View>
-              <Text style={[styles.settingLabel, { color: textColor }]}>データをエクスポート</Text>
-              <Text style={[styles.settingDescription, { color: subTextColor }]}>
-                CSVファイルとして保存
-              </Text>
+            <View style={styles.settingRow}>
+              <View>
+                <Text style={[styles.settingLabel, { color: textColor }]}>データをエクスポート</Text>
+                <Text style={[styles.settingDescription, { color: subTextColor }]}>
+                  CSVファイルとして保存
+                </Text>
+              </View>
+              <Text style={[styles.chevron, { color: subTextColor }]}>›</Text>
             </View>
-            <Text style={[styles.chevron, { color: subTextColor }]}>›</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.settingItem, { backgroundColor: cardBackground }]}
             onPress={handleClearAllData}
           >
-            <View>
-              <Text style={[styles.settingLabel, { color: '#FF3B30' }]}>全データを削除</Text>
-              <Text style={[styles.settingDescription, { color: subTextColor }]}>
-                すべての支出記録を削除します
-              </Text>
+            <View style={styles.settingRow}>
+              <View>
+                <Text style={[styles.settingLabel, { color: '#FF3B30' }]}>全データを削除</Text>
+                <Text style={[styles.settingDescription, { color: subTextColor }]}>
+                  すべての支出記録を削除します
+                </Text>
+              </View>
+              <Text style={[styles.chevron, { color: subTextColor }]}>›</Text>
             </View>
-            <Text style={[styles.chevron, { color: subTextColor }]}>›</Text>
           </TouchableOpacity>
         </View>
 
@@ -196,13 +169,15 @@ export default function SettingsScreen() {
             style={[styles.settingItem, { backgroundColor: cardBackground }]}
             onPress={handleAbout}
           >
-            <View>
-              <Text style={[styles.settingLabel, { color: textColor }]}>このアプリについて</Text>
-              <Text style={[styles.settingDescription, { color: subTextColor }]}>
-                バージョン情報
-              </Text>
+            <View style={styles.settingRow}>
+              <View>
+                <Text style={[styles.settingLabel, { color: textColor }]}>このアプリについて</Text>
+                <Text style={[styles.settingDescription, { color: subTextColor }]}>
+                  バージョン情報
+                </Text>
+              </View>
+              <Text style={[styles.chevron, { color: subTextColor }]}>›</Text>
             </View>
-            <Text style={[styles.chevron, { color: subTextColor }]}>›</Text>
           </TouchableOpacity>
         </View>
 
@@ -232,26 +207,30 @@ export default function SettingsScreen() {
               style={[styles.settingItem, { backgroundColor: cardBackground, borderBottomColor: borderColor }]}
               onPress={handleForceCleanup}
             >
-              <View>
-                <Text style={[styles.settingLabel, { color: textColor }]}>手動クリーンアップ</Text>
-                <Text style={[styles.settingDescription, { color: subTextColor }]}>
-                  前月以前のデータを今すぐ削除
-                </Text>
+              <View style={styles.settingRow}>
+                <View>
+                  <Text style={[styles.settingLabel, { color: textColor }]}>手動クリーンアップ</Text>
+                  <Text style={[styles.settingDescription, { color: subTextColor }]}>
+                    前月以前のデータを今すぐ削除
+                  </Text>
+                </View>
+                <Text style={[styles.chevron, { color: subTextColor }]}>›</Text>
               </View>
-              <Text style={[styles.chevron, { color: subTextColor }]}>›</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[styles.settingItem, { backgroundColor: cardBackground }]}
               onPress={handleResetCleanupHistory}
             >
-              <View>
-                <Text style={[styles.settingLabel, { color: textColor }]}>クリーンアップ履歴リセット</Text>
-                <Text style={[styles.settingDescription, { color: subTextColor }]}>
-                  次回起動時に月変わりチェックを実行
-                </Text>
+              <View style={styles.settingRow}>
+                <View>
+                  <Text style={[styles.settingLabel, { color: textColor }]}>クリーンアップ履歴リセット</Text>
+                  <Text style={[styles.settingDescription, { color: subTextColor }]}>
+                    次回起動時に月変わりチェックを実行
+                  </Text>
+                </View>
+                <Text style={[styles.chevron, { color: subTextColor }]}>›</Text>
               </View>
-              <Text style={[styles.chevron, { color: subTextColor }]}>›</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -296,12 +275,14 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   settingItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     padding: 16,
     marginBottom: 1,
     borderRadius: 8,
+  },
+  settingRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   settingLabel: {
     fontSize: 16,
