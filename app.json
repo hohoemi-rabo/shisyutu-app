@@ -1,21 +1,33 @@
 {
   "expo": {
-    "name": "shisyutu-app",
-    "slug": "shisyutu-app",
+    "name": "シンプル支出管理",
+    "slug": "simple-expense-tracker",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "shisyutuapp",
+    "scheme": "simpleexpense",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "description": "シンプルで使いやすい支出記録アプリ。毎日の支出を簡単に記録し、カテゴリ別に管理できます。",
+    "primaryColor": "#007AFF",
+    "backgroundColor": "#ffffff",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yourcompany.simpleexpensetracker",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSCameraUsageDescription": "将来のレシート撮影機能のため",
+        "NSPhotoLibraryUsageDescription": "将来のレシート画像選択機能のため"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#007AFF"
       },
+      "package": "com.yourcompany.simpleexpensetracker",
+      "versionCode": 1,
+      "permissions": [],
       "edgeToEdgeEnabled": true
     },
     "web": {

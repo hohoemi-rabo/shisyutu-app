@@ -31,9 +31,20 @@ yarn-error.*
 *.pem
 
 # local env files
+.env
 .env*.local
 
 # typescript
 *.tsbuildinfo
+
+# testing
+coverage/
+
+# EAS Build
+eas-build-*
+
+# IDE
+.vscode/
+.idea/
 
 app-example

@@ -1,5 +1,4 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Expense } from '../types/expense';
 
 const LAST_CLEANUP_KEY = 'lastCleanupDate';
 
@@ -53,40 +52,6 @@ export const hasMonthChanged = async (): Promise<boolean> => {
   return lastYear !== currentYear || lastMonth !== currentMonth;
 };
 
-/**
- * 全データを取得（全月のデータを統合）
- */
-const _getAllExpenses = async (): Promise<Expense[]> => {
-  try {
-    const keys = await AsyncStorage.getAllKeys();
-    const expenseKeys = keys.filter(key => key.startsWith('expenses_'));
-    
-    if (expenseKeys.length === 0) {
-      return [];
-    }
-    
-    const results = await AsyncStorage.multiGet(expenseKeys);
-    const allExpenses: Expense[] = [];
-    
-    for (const [, value] of results) {
-      if (value) {
-        try {
-          const monthlyData = JSON.parse(value);
-          if (monthlyData.records && Array.isArray(monthlyData.records)) {
-            allExpenses.push(...monthlyData.records);
-          }
-        } catch (e) {
-          console.error('Failed to parse monthly data:', e);
-        }
-      }
-    }
-    
-    return allExpenses;
-  } catch (error) {
-    console.error('Failed to get all expenses:', error);
-    return [];
-  }
-};
 
 /**
  * 前月以前のデータを削除
