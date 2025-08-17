@@ -75,8 +75,21 @@ export const AmountInput: React.FC<AmountInputProps> = ({
     // 数字のみを許可
     const numericText = text.replace(/[^0-9]/g, '');
     
-    // 先頭の0を削除（0以外の数字が続く場合）
-    const cleanedText = numericText.replace(/^0+(?=\d)/, '');
+    // 空文字の場合はそのまま返す
+    if (numericText === '') {
+      onChangeText('');
+      return;
+    }
+    
+    // 先頭の0を削除（ただし、単独の0は残す）
+    let cleanedText = numericText;
+    if (numericText.length > 1 && numericText.startsWith('0')) {
+      cleanedText = numericText.replace(/^0+/, '');
+      // すべて0だった場合は1つ残す
+      if (cleanedText === '') {
+        cleanedText = '0';
+      }
+    }
     
     onChangeText(cleanedText);
   };
@@ -123,7 +136,7 @@ export const AmountInput: React.FC<AmountInputProps> = ({
           returnKeyType="done"
           maxLength={7} // 最大100万円（1,000,000）
           autoFocus={autoFocus}
-          selectTextOnFocus
+          selectTextOnFocus={false}
         />
         {value && !error && (
           <Text style={[styles.checkmark, { color: successColor }]}>✓</Text>
