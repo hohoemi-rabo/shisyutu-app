@@ -75,7 +75,7 @@ const recalculateTotals = (records: Expense[]): Totals => {
 };
 
 // 支出を保存
-export const saveExpense = async (expense: Omit<Expense, 'id' | 'timestamp' | 'synced'>): Promise<Expense> => {
+export const saveExpense = async (expense: Omit<Expense, 'id' | 'timestamp'>): Promise<Expense> => {
   try {
     const monthlyData = await getMonthlyData();
     

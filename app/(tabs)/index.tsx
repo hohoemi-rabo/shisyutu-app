@@ -82,6 +82,7 @@ export default function HomeScreen() {
         date: getTodayString(),
         amount: numAmount,
         category: selectedCategory,
+        synced: false, // オフラインで作成されたデータ
       });
 
       // 入力をクリア

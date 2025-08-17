@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useData } from '../contexts/DataContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { forceCleanup, resetCleanupHistory } from '../utils/dataCleanup';
+import { NetworkStatusBadge } from '../components/NetworkStatusBadge';
 
 export default function SettingsScreen() {
   const backgroundColor = useThemeColor({}, 'background');
@@ -135,6 +136,7 @@ export default function SettingsScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={[styles.headerTitle, { color: textColor }]}>設定</Text>
+          <NetworkStatusBadge style={styles.networkBadge} />
         </View>
 
         {/* 表示設定 */}
@@ -272,10 +274,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
+  },
+  networkBadge: {
+    marginLeft: 'auto',
   },
   section: {
     marginTop: 20,
