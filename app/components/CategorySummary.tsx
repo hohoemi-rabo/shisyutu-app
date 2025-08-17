@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { Category, CategoryInfo, CategoryTotals } from '../types/expense';
@@ -17,7 +17,7 @@ interface CategoryItem {
   percentage: number;
 }
 
-export const CategorySummary: React.FC<CategorySummaryProps> = ({ totals, monthTotal }) => {
+export const CategorySummary: React.FC<CategorySummaryProps> = memo(({ totals, monthTotal }) => {
   const colorScheme = useColorScheme();
   const backgroundColor = useThemeColor(
     { light: Colors.light.card, dark: Colors.dark.card },
@@ -100,7 +100,15 @@ export const CategorySummary: React.FC<CategorySummaryProps> = ({ totals, monthT
       />
     </View>
   );
-};
+}, (prevProps, nextProps) => {
+  // カスタム比較関数: totalsとmonthTotalが同じなら再レンダリングしない
+  return (
+    JSON.stringify(prevProps.totals) === JSON.stringify(nextProps.totals) &&
+    prevProps.monthTotal === nextProps.monthTotal
+  );
+});
+
+CategorySummary.displayName = 'CategorySummary';
 
 const styles = StyleSheet.create({
   container: {

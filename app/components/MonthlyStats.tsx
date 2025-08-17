@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { Expense } from '../types/expense';
@@ -8,20 +8,26 @@ interface MonthlyStatsProps {
   monthTotal: number;
 }
 
-export const MonthlyStats: React.FC<MonthlyStatsProps> = ({ expenses, monthTotal }) => {
+export const MonthlyStats: React.FC<MonthlyStatsProps> = memo(({ expenses, monthTotal }) => {
   const backgroundColor = useThemeColor({ light: '#F0F7FF', dark: '#1A2332' }, 'background');
   const textColor = useThemeColor({}, 'text');
   const subTextColor = useThemeColor({ light: '#666', dark: '#999' }, 'text');
   const accentColor = '#007AFF';
 
-  // 統計計算
-  const dailyAverage = expenses.length > 0 
-    ? monthTotal / new Set(expenses.map(e => e.date)).size 
-    : 0;
+  // 統計計算 - useMemoでキャッシュ化
+  const dailyAverage = useMemo(() => 
+    expenses.length > 0 
+      ? monthTotal / new Set(expenses.map(e => e.date)).size 
+      : 0,
+    [expenses, monthTotal]
+  );
   
-  const maxExpense = expenses.length > 0 
-    ? Math.max(...expenses.map(e => e.amount))
-    : 0;
+  const maxExpense = useMemo(() => 
+    expenses.length > 0 
+      ? Math.max(...expenses.map(e => e.amount))
+      : 0,
+    [expenses]
+  );
   
   const transactionCount = expenses.length;
 
@@ -51,7 +57,16 @@ export const MonthlyStats: React.FC<MonthlyStatsProps> = ({ expenses, monthTotal
       </View>
     </View>
   );
-};
+}, (prevProps, nextProps) => {
+  // カスタム比較関数: expensesとmonthTotalが同じなら再レンダリングしない
+  return (
+    prevProps.expenses.length === nextProps.expenses.length &&
+    prevProps.monthTotal === nextProps.monthTotal &&
+    JSON.stringify(prevProps.expenses) === JSON.stringify(nextProps.expenses)
+  );
+});
+
+MonthlyStats.displayName = 'MonthlyStats';
 
 const styles = StyleSheet.create({
   container: {

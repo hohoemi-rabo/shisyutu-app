@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Expense, CategoryInfo } from '../types/expense';
 import { useThemeColor } from '@/hooks/useThemeColor';
@@ -9,7 +9,7 @@ interface ExpenseListItemProps {
   onDelete: (id: string) => void;
 }
 
-export const ExpenseListItem: React.FC<ExpenseListItemProps> = ({
+export const ExpenseListItem: React.FC<ExpenseListItemProps> = memo(({
   expense,
   onEdit,
   onDelete,
@@ -60,7 +60,17 @@ export const ExpenseListItem: React.FC<ExpenseListItemProps> = ({
       </View>
     </View>
   );
-};
+}, (prevProps, nextProps) => {
+  // カスタム比較関数: expenseオブジェクトの内容が同じなら再レンダリングしない
+  return (
+    prevProps.expense.id === nextProps.expense.id &&
+    prevProps.expense.amount === nextProps.expense.amount &&
+    prevProps.expense.category === nextProps.expense.category &&
+    prevProps.expense.date === nextProps.expense.date
+  );
+});
+
+ExpenseListItem.displayName = 'ExpenseListItem';
 
 const styles = StyleSheet.create({
   container: {

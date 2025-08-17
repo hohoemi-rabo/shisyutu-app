@@ -66,8 +66,8 @@ export default function HomeScreen() {
     setRefreshing(false);
   }, [refreshData]);
 
-  // 支出を保存
-  const handleSaveExpense = async () => {
+  // 支出を保存 - useCallbackでメモ化
+  const handleSaveExpense = useCallback(async () => {
     // バリデーション
     const validation = validateAmount(amount);
     if (!validation.isValid) {
@@ -107,10 +107,10 @@ export default function HomeScreen() {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
     }
-  };
+  }, [amount, selectedCategory, refreshData]);
 
-  // 支出を削除
-  const handleDeleteExpense = (id: string) => {
+  // 支出を削除 - useCallbackでメモ化
+  const handleDeleteExpense = useCallback((id: string) => {
     Alert.alert(
       '削除確認',
       'この支出を削除しますか？',
@@ -131,16 +131,16 @@ export default function HomeScreen() {
         },
       ]
     );
-  };
+  }, [refreshData]);
 
-  // 編集モーダルを開く
-  const handleEditExpense = (expense: Expense) => {
+  // 編集モーダルを開く - useCallbackでメモ化
+  const handleEditExpense = useCallback((expense: Expense) => {
     setEditingExpense(expense);
     setShowEditModal(true);
-  };
+  }, []);
 
-  // 編集を保存
-  const handleSaveEdit = async (id: string, category: Category, amount: number) => {
+  // 編集を保存 - useCallbackでメモ化
+  const handleSaveEdit = useCallback(async (id: string, category: Category, amount: number) => {
     try {
       await updateExpense(id, { category, amount });
       setShowEditModal(false);
@@ -150,13 +150,13 @@ export default function HomeScreen() {
       console.error('Error updating expense:', error);
       Alert.alert('エラー', '更新に失敗しました');
     }
-  };
+  }, [refreshData]);
 
-  // 編集をキャンセル
-  const handleCancelEdit = () => {
+  // 編集をキャンセル - useCallbackでメモ化
+  const handleCancelEdit = useCallback(() => {
     setShowEditModal(false);
     setEditingExpense(null);
-  };
+  }, []);
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor }]}>
