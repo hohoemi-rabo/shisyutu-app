@@ -21,8 +21,6 @@ export const AmountInput: React.FC<AmountInputProps> = ({
   autoFocus = false,
 }) => {
   const shakeAnimation = useRef(new Animated.Value(0)).current;
-  
-  const backgroundColor = useThemeColor({}, 'background');
   const cardBackground = useThemeColor(
     { light: Colors.light.card, dark: Colors.dark.inputBackground },
     'background'

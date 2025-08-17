@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, SafeAreaView } from 'react-native';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useData } from '../contexts/DataContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { forceCleanup, resetCleanupHistory } from '../utils/dataCleanup';
 
 export default function SettingsScreen() {
   const backgroundColor = useThemeColor({}, 'background');
@@ -14,6 +15,7 @@ export default function SettingsScreen() {
 
   const { refreshData } = useData();
   const { themeMode, setThemeMode } = useTheme();
+  const [debugMode, setDebugMode] = useState(false);
 
   const handleClearAllData = () => {
     Alert.alert(
@@ -49,7 +51,56 @@ export default function SettingsScreen() {
     Alert.alert(
       'アプリについて',
       'シンプル支出管理 v1.0.0\n\nシンプルで使いやすい支出記録アプリです。',
-      [{ text: 'OK' }]
+      [
+        { text: 'OK' },
+        {
+          text: 'デバッグモード',
+          onPress: () => setDebugMode(!debugMode),
+        },
+      ]
+    );
+  };
+
+  const handleForceCleanup = async () => {
+    Alert.alert(
+      '手動クリーンアップ',
+      '前月以前のデータを今すぐ削除しますか？',
+      [
+        { text: 'キャンセル', style: 'cancel' },
+        {
+          text: '実行',
+          style: 'destructive',
+          onPress: async () => {
+            const result = await forceCleanup();
+            await refreshData();
+            if (result.success) {
+              Alert.alert(
+                '完了',
+                `${result.deletedCount}件の古いデータを削除しました`
+              );
+            } else {
+              Alert.alert('エラー', result.error || '削除に失敗しました');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleResetCleanupHistory = async () => {
+    Alert.alert(
+      'クリーンアップ履歴リセット',
+      '次回起動時に月変わりチェックが実行されます',
+      [
+        { text: 'キャンセル', style: 'cancel' },
+        {
+          text: 'リセット',
+          onPress: async () => {
+            await resetCleanupHistory();
+            Alert.alert('完了', 'クリーンアップ履歴をリセットしました');
+          },
+        },
+      ]
     );
   };
 
@@ -169,6 +220,39 @@ export default function SettingsScreen() {
             </Text>
           </View>
         </View>
+
+        {/* デバッグモード */}
+        {debugMode && (
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: '#FF3B30' }]}>デバッグ機能</Text>
+            
+            <TouchableOpacity
+              style={[styles.settingItem, { backgroundColor: cardBackground, borderBottomColor: borderColor }]}
+              onPress={handleForceCleanup}
+            >
+              <View>
+                <Text style={[styles.settingLabel, { color: textColor }]}>手動クリーンアップ</Text>
+                <Text style={[styles.settingDescription, { color: subTextColor }]}>
+                  前月以前のデータを今すぐ削除
+                </Text>
+              </View>
+              <Text style={[styles.chevron, { color: subTextColor }]}>›</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.settingItem, { backgroundColor: cardBackground }]}
+              onPress={handleResetCleanupHistory}
+            >
+              <View>
+                <Text style={[styles.settingLabel, { color: textColor }]}>クリーンアップ履歴リセット</Text>
+                <Text style={[styles.settingDescription, { color: subTextColor }]}>
+                  次回起動時に月変わりチェックを実行
+                </Text>
+              </View>
+              <Text style={[styles.chevron, { color: subTextColor }]}>›</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         <View style={styles.footer}>
           <Text style={[styles.footerText, { color: subTextColor }]}>
