@@ -9,7 +9,7 @@ export enum Category {
 
 // カテゴリ情報
 export const CategoryInfo = {
-  [Category.Food]: { label: '食費', icon: '🍽️', color: '#FF6B6B' },
+  [Category.Food]: { label: '食費', icon: '🍴', color: '#FF6B6B' },
   [Category.Transport]: { label: '交通費', icon: '🚃', color: '#4ECDC4' },
   [Category.Daily]: { label: '日用品', icon: '🧺', color: '#45B7D1' },
   [Category.Entertainment]: { label: '娯楽', icon: '🎮', color: '#F7B801' },
